@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>M3TER — Usage-Based Billing & Metering Engine</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --card-border: #334155;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    header {
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--card-border);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    header h1 { font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; }
+    header .status-badge {
+      background: rgba(16, 185, 129, 0.2);
+      color: var(--success);
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border: 1px solid var(--success);
+    }
+    nav {
+      background: #1e293b;
+      display: flex;
+      gap: 1rem;
+      padding: 0 2rem;
+      border-bottom: 1px solid var(--card-border);
+    }
+    nav button {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      padding: 0.75rem 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+    }
+    nav button.active {
+      color: var(--primary);
+      border-bottom: 2px solid var(--primary);
+    }
+    main { padding: 2rem; max-width: 1200px; margin: 0 auto; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 0.5rem;
+      padding: 1.25rem;
+    }
+    .card h3 { font-size: 0.875rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.5rem; }
+    .card .value { font-size: 1.75rem; font-weight: 700; }
+    .table-container {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 0.5rem;
+      overflow-x: auto;
+      margin-bottom: 2rem;
+    }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.875rem; }
+    th { background: #162032; padding: 0.75rem 1rem; font-weight: 600; color: var(--text-muted); border-bottom: 1px solid var(--card-border); }
+    td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--card-border); }
+    tr:last-child td { border-bottom: none; }
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.5rem;
+      border-radius: 0.25rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .badge-active { background: rgba(16, 185, 129, 0.2); color: var(--success); }
+    .badge-trialing { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
+    .badge-canceled { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+    .badge-paid { background: rgba(16, 185, 129, 0.2); color: var(--success); }
+    .badge-draft { background: rgba(148, 163, 184, 0.2); color: var(--text-muted); }
+    button.btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 0.25rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button.btn:hover { background: var(--primary-hover); }
+    .btn-sm { padding: 0.25rem 0.5rem; font-size: 0.75rem; }
+    .btn-danger { background: var(--danger); }
+    .btn-danger:hover { background: #dc2626; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; font-size: 0.875rem; margin-bottom: 0.25rem; color: var(--text-muted); }
+    .form-control {
+      width: 100%;
+      background: #0f172a;
+      border: 1px solid var(--card-border);
+      color: var(--text);
+      padding: 0.5rem 0.75rem;
+      border-radius: 0.25rem;
+    }
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: #334155;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 0.5rem;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--primary);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>⚡ M3TER Usage-Based Billing & Metering Engine</h1>
+    <div class="status-badge">Engine Active (Python 3.13)</div>
+  </header>
+
+  <nav>
+    <button class="active" onclick="switchTab('dashboard')">Dashboard</button>
+    <button onclick="switchTab('plans')">Plans & Features</button>
+    <button onclick="switchTab('subscriptions')">Subscriptions</button>
+    <button onclick="switchTab('metering')">Usage & Metering</button>
+    <button onclick="switchTab('invoices')">Invoices</button>
+    <button onclick="switchTab('coupons')">Coupons</button>
+    <button onclick="switchTab('students')">Students (Existing API)</button>
+    <button onclick="switchTab('auth')">Auth & Users</button>
+  </nav>
+
+  <main>
+    <!-- DASHBOARD TAB -->
+    <div id="tab-dashboard" class="tab-content active">
+      <div class="grid">
+        <div class="card">
+          <h3>Active Subscriptions</h3>
+          <div class="value" id="stat-active-subs">-</div>
+        </div>
+        <div class="card">
+          <h3>Trialing Subscriptions</h3>
+          <div class="value" id="stat-trial-subs">-</div>
+        </div>
+        <div class="card">
+          <h3>Total Plans</h3>
+          <div class="value" id="stat-plans">-</div>
+        </div>
+        <div class="card">
+          <h3>Invoices Paid</h3>
+          <div class="value" id="stat-invoices-paid">-</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom: 2rem;">
+        <h2 style="font-size: 1.1rem; margin-bottom: 1rem;">Clock & Automated Lifecycle Advance</h2>
+        <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem;">
+          Advance subscription billing periods, enact cancellations, convert trials, and mark overdue invoices past-due.
+        </p>
+        <button class="btn" onclick="advanceLifecycle()">⚡ Trigger Lifecycle Advance</button>
+        <span id="lifecycle-result" style="margin-left: 1rem; font-size: 0.875rem; color: var(--success);"></span>
+      </div>
+    </div>
+
+    <!-- PLANS TAB -->
+    <div id="tab-plans" class="tab-content">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h2>Billing Plans</h2>
+      </div>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Plan Name</th>
+              <th>Slug</th>
+              <th>Currency</th>
+              <th>Billing Period</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="plans-table-body">
+            <tr><td colspan="6" style="text-align:center;">Loading plans...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SUBSCRIPTIONS TAB -->
+    <div id="tab-subscriptions" class="tab-content">
+      <h2>Customer Subscriptions</h2>
+      <div class="table-container" style="margin-top: 1rem;">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Tenant</th>
+              <th>Plan</th>
+              <th>Status</th>
+              <th>Current Period</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="subs-table-body">
+            <tr><td colspan="6" style="text-align:center;">Loading subscriptions...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- METERING TAB -->
+    <div id="tab-metering" class="tab-content">
+      <h2>Usage Metering & Entitlements</h2>
+      <div class="grid" style="margin-top: 1rem;">
+        <div class="card">
+          <h3>Record Usage Event</h3>
+          <div class="form-group">
+            <label>Tenant ID</label>
+            <input type="text" id="meter-tenant" class="form-control" value="tenant_alpha" />
+          </div>
+          <div class="form-group">
+            <label>Feature Key</label>
+            <input type="text" id="meter-feature" class="form-control" value="api_calls" />
+          </div>
+          <div class="form-group">
+            <label>Quantity</label>
+            <input type="number" id="meter-qty" class="form-control" value="10" />
+          </div>
+          <button class="btn" onclick="sendMeterEvent()">Ingest Usage Event</button>
+          <div id="meter-result" style="margin-top: 0.5rem; font-size: 0.875rem;"></div>
+        </div>
+
+        <div class="card">
+          <h3>Check Entitlement Quota</h3>
+          <div class="form-group">
+            <label>Tenant ID</label>
+            <input type="text" id="check-tenant" class="form-control" value="tenant_alpha" />
+          </div>
+          <div class="form-group">
+            <label>Feature Key</label>
+            <input type="text" id="check-feature" class="form-control" value="api_calls" />
+          </div>
+          <button class="btn" onclick="checkEntitlement()">Check Quota</button>
+          <div id="entitlement-result" style="margin-top: 1rem;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INVOICES TAB -->
+    <div id="tab-invoices" class="tab-content">
+      <h2>Invoices & Line Items</h2>
+      <div class="table-container" style="margin-top: 1rem;">
+        <table>
+          <thead>
+            <tr>
+              <th>Invoice ID</th>
+              <th>Tenant</th>
+              <th>Subtotal</th>
+              <th>Discount / Credit</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="invoices-table-body">
+            <tr><td colspan="7" style="text-align:center;">Loading invoices...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- COUPONS TAB -->
+    <div id="tab-coupons" class="tab-content">
+      <h2>Discount Coupons</h2>
+      <div class="table-container" style="margin-top: 1rem;">
+        <table>
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Value</th>
+              <th>Redeemed</th>
+            </tr>
+          </thead>
+          <tbody id="coupons-table-body">
+            <tr><td colspan="5" style="text-align:center;">Loading coupons...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- STUDENTS TAB (Preserved Existing Project API) -->
+    <div id="tab-students" class="tab-content">
+      <h2>Student Management (Preserved API)</h2>
+      <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem;">
+        Replaces Node.js/Express MongoDB server.js with high-performance FastAPI backend.
+      </p>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Age</th>
+              <th>Grade</th>
+              <th>City</th>
+            </tr>
+          </thead>
+          <tbody id="students-table-body">
+            <tr><td colspan="5" style="text-align:center;">Loading students...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- AUTH TAB -->
+    <div id="tab-auth" class="tab-content">
+      <h2>Authentication & JWT (Preserved API)</h2>
+      <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem;">
+        Python implementation of Express.js/JWT.js bcrypt password hashing and token validation.
+      </p>
+      <div class="grid" style="max-width: 500px;">
+        <div class="card">
+          <h3>Register / Login</h3>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="auth-email" class="form-control" value="test@example.com" />
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="auth-password" class="form-control" value="password123" />
+          </div>
+          <div style="display: flex; gap: 0.5rem;">
+            <button class="btn" onclick="registerUser()">Register</button>
+            <button class="btn" style="background: #64748b;" onclick="loginUser()">Login</button>
+          </div>
+          <div id="auth-result" style="margin-top: 1rem; font-size: 0.875rem; word-break: break-all;"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    function switchTab(tabId) {
+      document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('tab-' + tabId).classList.add('active');
+      if (tabId === 'dashboard') loadStats();
+      if (tabId === 'plans') loadPlans();
+      if (tabId === 'subscriptions') loadSubs();
+      if (tabId === 'invoices') loadInvoices();
+      if (tabId === 'coupons') loadCoupons();
+      if (tabId === 'students') loadStudents();
+    }
+
+    async function loadStats() {
+      try {
+        const res = await fetch('/analytics/summary');
+        const data = await res.json();
+        document.getElementById('stat-active-subs').innerText = data.active_subscriptions || 0;
+        document.getElementById('stat-trial-subs').innerText = data.trialing_subscriptions || 0;
+        document.getElementById('stat-plans').innerText = data.total_plans || 0;
+        document.getElementById('stat-invoices-paid').innerText = data.paid_invoices || 0;
+      } catch (e) { console.error(e); }
+    }
+
+    async function advanceLifecycle() {
+      try {
+        const res = await fetch('/lifecycle/advance', { method: 'POST' });
+        const data = await res.json();
+        document.getElementById('lifecycle-result').innerText =
+          `Advanced: ${data.periods_advanced.length} periods, ${data.cancels_enacted.length} cancels, ${data.trials_ended.length} trials.`;
+        loadStats();
+      } catch (e) {
+        document.getElementById('lifecycle-result').innerText = 'Advance failed';
+      }
+    }
+
+    async function loadPlans() {
+      const res = await fetch('/plans');
+      const data = await res.json();
+      const tbody = document.getElementById('plans-table-body');
+      tbody.innerHTML = data.length === 0 ? '<tr><td colspan="6" style="text-align:center;">No plans found</td></tr>' : '';
+      data.forEach(p => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${p.name}</strong></td>
+          <td><code>${p.slug}</code></td>
+          <td>${p.currency.toUpperCase()}</td>
+          <td>${p.pricing ? p.pricing.billing_period : 'none'}</td>
+          <td><span class="badge badge-active">${p.status}</span></td>
+          <td><button class="btn btn-sm btn-danger" onclick="archivePlan('${p.id}')">Archive</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function archivePlan(id) {
+      await fetch(`/plans/${id}/archive`, { method: 'POST' });
+      loadPlans();
+    }
+
+    async function loadSubs() {
+      const res = await fetch('/subscriptions');
+      const data = await res.json();
+      const tbody = document.getElementById('subs-table-body');
+      tbody.innerHTML = data.length === 0 ? '<tr><td colspan="6" style="text-align:center;">No subscriptions found</td></tr>' : '';
+      data.forEach(s => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><code>${s.id}</code></td>
+          <td>${s.tenant_id}</td>
+          <td><code>${s.plan_id}</code></td>
+          <td><span class="badge badge-${s.status}">${s.status}</span></td>
+          <td>${s.current_period_start.split('T')[0]} to ${s.current_period_end.split('T')[0]}</td>
+          <td>
+            <button class="btn btn-sm" onclick="pauseSub('${s.id}')">Pause</button>
+            <button class="btn btn-sm btn-danger" onclick="cancelSub('${s.id}')">Cancel</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function pauseSub(id) {
+      await fetch(`/subscriptions/${id}/pause`, { method: 'POST' });
+      loadSubs();
+    }
+    async function cancelSub(id) {
+      await fetch(`/subscriptions/${id}/cancel?immediately=true`, { method: 'POST' });
+      loadSubs();
+    }
+
+    async function sendMeterEvent() {
+      const tenant = document.getElementById('meter-tenant').value;
+      const feat = document.getElementById('meter-feature').value;
+      const qty = parseInt(document.getElementById('meter-qty').value);
+      const res = await fetch('/meter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tenant_id: tenant, feature_key: feat, quantity: qty })
+      });
+      const data = await res.json();
+      document.getElementById('meter-result').innerText = '✓ Ingested: ' + JSON.stringify(data);
+    }
+
+    async function checkEntitlement() {
+      const tenant = document.getElementById('check-tenant').value;
+      const feat = document.getElementById('check-feature').value;
+      const res = await fetch(`/entitlements/${feat}?tenant_id=${tenant}`);
+      const data = await res.json();
+      const container = document.getElementById('entitlement-result');
+      container.innerHTML = `
+        <div style="font-weight: 600; color: ${data.allowed ? 'var(--success)' : 'var(--danger)'}">
+          ${data.allowed ? '✓ ALLOWED' : '✗ DENIED'} (${data.reason || 'Active Quota'})
+        </div>
+        <div style="font-size: 0.875rem; margin-top: 0.25rem;">
+          Used: ${data.used} / Limit: ${data.limit === -1 ? 'Unlimited' : data.limit} (Remaining: ${data.remaining})
+        </div>
+      `;
+    }
+
+    async function loadInvoices() {
+      const res = await fetch('/invoices');
+      const data = await res.json();
+      const tbody = document.getElementById('invoices-table-body');
+      tbody.innerHTML = data.length === 0 ? '<tr><td colspan="7" style="text-align:center;">No invoices found</td></tr>' : '';
+      data.forEach(inv => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><code>${inv.id}</code></td>
+          <td>${inv.tenant_id}</td>
+          <td>${inv.subtotal.display || '$' + (inv.subtotal.amount/100).toFixed(2)}</td>
+          <td>${inv.discount_amount.display || '$' + (inv.discount_amount.amount/100).toFixed(2)}</td>
+          <td><strong>${inv.total.display || '$' + (inv.total.amount/100).toFixed(2)}</strong></td>
+          <td><span class="badge badge-${inv.status}">${inv.status}</span></td>
+          <td>
+            <button class="btn btn-sm" onclick="payInvoice('${inv.id}')">Mark Paid</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function payInvoice(id) {
+      await fetch(`/invoices/${id}/pay`, { method: 'POST' });
+      loadInvoices();
+    }
+
+    async function loadCoupons() {
+      const res = await fetch('/coupons');
+      const data = await res.json();
+      const tbody = document.getElementById('coupons-table-body');
+      tbody.innerHTML = data.length === 0 ? '<tr><td colspan="5" style="text-align:center;">No coupons found</td></tr>' : '';
+      data.forEach(c => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><code>${c.code}</code></td>
+          <td>${c.name}</td>
+          <td>${c.type}</td>
+          <td>${c.type === 'percentage' ? c.percentage + '%' : c.amount.display}</td>
+          <td>${c.times_redeemed}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function loadStudents() {
+      const res = await fetch('/students');
+      const data = await res.json();
+      const tbody = document.getElementById('students-table-body');
+      tbody.innerHTML = data.length === 0 ? '<tr><td colspan="5" style="text-align:center;">No students found</td></tr>' : '';
+      data.forEach(s => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><code>${s.id}</code></td>
+          <td>${s.name}</td>
+          <td>${s.age}</td>
+          <td>${s.grade}</td>
+          <td>${s.city}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function registerUser() {
+      const email = document.getElementById('auth-email').value;
+      const password = document.getElementById('auth-password').value;
+      const res = await fetch('/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+      document.getElementById('auth-result').innerText = JSON.stringify(data);
+    }
+
+    async function loginUser() {
+      const email = document.getElementById('auth-email').value;
+      const password = document.getElementById('auth-password').value;
+      const res = await fetch('/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+      document.getElementById('auth-result').innerText = JSON.stringify(data);
+    }
+
+    // Initial load
+    loadStats();
+  </script>
+</body>
+</html>
