@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Assignment 1 - Profile Card</title>
+  <style>
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #eef2f6 0%, #e2e8f0 100%);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: #1e293b;
+      padding: 1.5rem;
+    }
+
+    .profile-card {
+      width: 100%;
+      max-width: 360px;
+      background-color: #ffffff;
+      border-radius: 20px;
+      padding: 2.25rem 1.75rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 1px solid #f1f5f9;
+    }
+
+    .profile-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 35px -5px rgba(15, 23, 42, 0.14), 0 10px 15px -5px rgba(15, 23, 42, 0.08);
+    }
+
+    .avatar-wrapper {
+      position: relative;
+      margin-bottom: 1.25rem;
+    }
+
+    .avatar {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      object-fit: cover;
+      display: block;
+      border: 4px solid #ffffff;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.2);
+    }
+
+    .status-dot {
+      position: absolute;
+      bottom: 6px;
+      right: 6px;
+      width: 16px;
+      height: 16px;
+      background-color: #10b981;
+      border: 3px solid #ffffff;
+      border-radius: 50%;
+    }
+
+    .name {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 0.25rem;
+      letter-spacing: -0.02em;
+    }
+
+    .title {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #2563eb;
+      margin-bottom: 0.85rem;
+    }
+
+    .bio {
+      font-size: 0.925rem;
+      line-height: 1.55;
+      color: #64748b;
+      margin-bottom: 1.5rem;
+    }
+
+    .skills-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 1.75rem;
+      width: 100%;
+    }
+
+    .skill-tag {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #334155;
+      background-color: #f1f5f9;
+      padding: 0.4rem 0.85rem;
+      border-radius: 9999px;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    .skill-tag:hover {
+      background-color: #e2e8f0;
+      color: #0f172a;
+    }
+
+    .follow-btn {
+      width: 100%;
+      padding: 0.8rem 1.5rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #ffffff;
+      background-color: #2563eb;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+      transition: background-color 0.25s ease, transform 0.2s ease, box-shadow 0.25s ease;
+      outline: none;
+    }
+
+    .follow-btn:hover {
+      background-color: #1d4ed8;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(37, 99, 235, 0.4);
+    }
+
+    .follow-btn:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+    }
+
+    .follow-btn:focus-visible {
+      outline: 2px solid #2563eb;
+      outline-offset: 3px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .profile-card,
+      .follow-btn,
+      .skill-tag {
+        transition: none;
+      }
+      .profile-card:hover,
+      .follow-btn:hover {
+        transform: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <main class="profile-card">
+    <div class="avatar-wrapper">
+
+      <img 
+        class="avatar" 
+        src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cdefs%3E%3ClinearGradient id='bg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%233b82f6'/%3E%3Cstop offset='100%25' stop-color='%231d4ed8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='120' height='120' fill='url(%23bg)'/%3E%3Ccircle cx='60' cy='46' r='22' fill='%23ffffff' opacity='0.95'/%3E%3Cpath d='M26 102 C28 76, 50 72, 60 72 C70 72, 92 76, 94 102 Z' fill='%23ffffff' opacity='0.95'/%3E%3C/svg%3E" 
+        alt="Aarav Sharma avatar"
+      >
+      <span class="status-dot" title="Active now"></span>
+    </div>
+
+    <h1 class="name">Aarav Sharma</h1>
+    <p class="title">Frontend Engineer</p>
+
+    <p class="bio">
+      Passionate about craft, accessibility, and high-performance user interfaces. Dedicated to building delightful web experiences.
+    </p>
+
+    <div class="skills-container" aria-label="Skills">
+      <span class="skill-tag">HTML5</span>
+      <span class="skill-tag">CSS3</span>
+      <span class="skill-tag">JavaScript</span>
+    </div>
+
+    <button type="button" class="follow-btn">Follow</button>
+  </main>
+
+</body>
+</html>

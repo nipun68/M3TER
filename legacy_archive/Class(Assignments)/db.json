@@ -1,0 +1,14 @@
+{
+  "students": [
+    {
+      "id": "1",
+      "name": "Rahul Sharma",
+      "course": "Computer Science"
+    },
+    {
+      "id": "2",
+      "name": "Priya Verma",
+      "course": "Artificial Intelligence"
+    }
+  ]
+}
