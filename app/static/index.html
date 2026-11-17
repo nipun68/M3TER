@@ -149,7 +149,6 @@
     <button onclick="switchTab('metering')">Usage & Metering</button>
     <button onclick="switchTab('invoices')">Invoices</button>
     <button onclick="switchTab('coupons')">Coupons</button>
-    <button onclick="switchTab('students')">Students (Existing API)</button>
     <button onclick="switchTab('auth')">Auth & Users</button>
   </nav>
 
@@ -313,30 +312,6 @@
       </div>
     </div>
 
-    <!-- STUDENTS TAB (Preserved Existing Project API) -->
-    <div id="tab-students" class="tab-content">
-      <h2>Student Management (Preserved API)</h2>
-      <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem;">
-        Replaces Node.js/Express MongoDB server.js with high-performance FastAPI backend.
-      </p>
-      <div class="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Name</th>
-              <th>Age</th>
-              <th>Grade</th>
-              <th>City</th>
-            </tr>
-          </thead>
-          <tbody id="students-table-body">
-            <tr><td colspan="5" style="text-align:center;">Loading students...</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
     <!-- AUTH TAB -->
     <div id="tab-auth" class="tab-content">
       <h2>Authentication & JWT (Preserved API)</h2>
@@ -375,7 +350,6 @@
       if (tabId === 'subscriptions') loadSubs();
       if (tabId === 'invoices') loadInvoices();
       if (tabId === 'coupons') loadCoupons();
-      if (tabId === 'students') loadStudents();
     }
 
     async function loadStats() {
@@ -525,24 +499,6 @@
           <td>${c.type}</td>
           <td>${c.type === 'percentage' ? c.percentage + '%' : c.amount.display}</td>
           <td>${c.times_redeemed}</td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    async function loadStudents() {
-      const res = await fetch('/students');
-      const data = await res.json();
-      const tbody = document.getElementById('students-table-body');
-      tbody.innerHTML = data.length === 0 ? '<tr><td colspan="5" style="text-align:center;">No students found</td></tr>' : '';
-      data.forEach(s => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td><code>${s.id}</code></td>
-          <td>${s.name}</td>
-          <td>${s.age}</td>
-          <td>${s.grade}</td>
-          <td>${s.city}</td>
         `;
         tbody.appendChild(tr);
       });

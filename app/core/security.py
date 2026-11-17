@@ -13,7 +13,7 @@ import bcrypt
 import jwt
 
 
-DEFAULT_SECRET_KEY = "PASSKEY"  # Preserved from Express.js/JWT.js
+DEFAULT_SECRET_KEY = "m3ter_default_jwt_secret_key_minimum_32_characters_for_hs256"
 ALGORITHM = "HS256"
 
 

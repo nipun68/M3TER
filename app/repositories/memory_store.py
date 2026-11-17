@@ -27,7 +27,6 @@ from app.models.meter import UsageEvent
 from app.models.entitlement import EntitlementResult
 from app.models.invoice import Invoice, InvoiceStatus
 from app.models.coupon import Coupon, CouponApplication
-from app.models.student import Student
 from app.models.user import User
 from app.repositories.base import BaseStore
 
@@ -44,7 +43,6 @@ class MemoryStore(BaseStore):
         self.invoices: Dict[str, Invoice] = {}
         self.coupons: Dict[str, Coupon] = {}
         self.coupon_applications: List[CouponApplication] = []
-        self.students: Dict[str, Student] = {}
         self.users: Dict[str, User] = {}
 
     # ── Plan methods ──
@@ -545,45 +543,7 @@ class MemoryStore(BaseStore):
                 return True
             return False
 
-    # ── Existing Project: Students & Users ──
-    def create_student(self, student: Student) -> Student:
-        with self._lock:
-            self.students[student.id] = copy.deepcopy(student)
-            return copy.deepcopy(student)
-
-    def get_all_students(self) -> List[Student]:
-        with self._lock:
-            res = [copy.deepcopy(s) for s in self.students.values()]
-            res.sort(key=lambda s: s.created_at, reverse=True)
-            return res
-
-    def get_student_by_id(self, student_id: str) -> Optional[Student]:
-        with self._lock:
-            s = self.students.get(student_id)
-            return copy.deepcopy(s) if s else None
-
-    def update_student(self, student_id: str, updates: Dict) -> Optional[Student]:
-        with self._lock:
-            s = self.students.get(student_id)
-            if not s:
-                return None
-            if "name" in updates:
-                s.name = str(updates["name"]).strip()
-            if "age" in updates:
-                s.age = int(updates["age"])
-            if "grade" in updates:
-                s.grade = str(updates["grade"]).strip().upper()
-            if "city" in updates:
-                s.city = str(updates["city"]).strip()
-            return copy.deepcopy(s)
-
-    def delete_student(self, student_id: str) -> bool:
-        with self._lock:
-            if student_id in self.students:
-                del self.students[student_id]
-                return True
-            return False
-
+    # ── User Authentication ──
     def create_user(self, user: User) -> User:
         with self._lock:
             self.users[user.useremail] = copy.deepcopy(user)

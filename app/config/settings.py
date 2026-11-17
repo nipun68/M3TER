@@ -15,7 +15,7 @@ class Settings:
     PORT: int = int(os.getenv("PORT", "8000"))
     HOST: str = os.getenv("HOST", "0.0.0.0")
     MONGO_URI: str = os.getenv("MONGO_URI", "mongodb://localhost:27017/m3ter_db")
-    JWT_SECRET_KEY: str = os.getenv("JWT_SECRET_KEY", "PASSKEY")  # Preserved from Express.js
+    JWT_SECRET_KEY: str = os.getenv("JWT_SECRET_KEY", "m3ter_default_jwt_secret_key_minimum_32_characters_for_hs256")
     STRIPE_SECRET_KEY: Optional[str] = os.getenv("STRIPE_SECRET_KEY", None)
     STRIPE_WEBHOOK_SECRET: Optional[str] = os.getenv("STRIPE_WEBHOOK_SECRET", None)
     REDIS_URL: Optional[str] = os.getenv("REDIS_URL", None)

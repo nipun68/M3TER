@@ -31,7 +31,6 @@ from app.models.meter import UsageEvent
 from app.models.entitlement import EntitlementResult
 from app.models.invoice import Invoice, InvoiceStatus
 from app.models.coupon import Coupon, CouponApplication
-from app.models.student import Student
 from app.models.user import User
 from app.repositories.base import BaseStore
 
@@ -54,7 +53,6 @@ class MongoStore(BaseStore):
         self.col_invoices = self.db["ledger_invoices"]
         self.col_coupons = self.db["ledger_coupons"]
         self.col_coupon_applications = self.db["ledger_coupon_applications"]
-        self.col_students = self.db["students"]
         self.col_users = self.db["users"]
 
     def ping(self) -> bool:
@@ -117,9 +115,8 @@ class MongoStore(BaseStore):
                 unique=True
             )
 
-            # 8. Students & Users (Preserved)
+            # 8. Users
             self.col_users.create_index([("useremail", ASCENDING)], unique=True)
-            self.col_students.create_index([("createdAt", DESCENDING)])
             logger.info("MongoDB migrations completed successfully.")
         except PyMongoError as e:
             logger.error(f"MongoDB migration error: {e}")
@@ -762,42 +759,7 @@ class MongoStore(BaseStore):
         )
         return res.modified_count > 0
 
-    # ── Existing Project: Students & Users ──
-    def create_student(self, student: Student) -> Student:
-        doc = student.to_dict()
-        self.col_students.insert_one(doc)
-        return student
-
-    def get_all_students(self) -> List[Student]:
-        docs = self.col_students.find().sort("createdAt", DESCENDING)
-        return [Student.from_dict(d) for d in docs]
-
-    def get_student_by_id(self, student_id: str) -> Optional[Student]:
-        doc = self.col_students.find_one({"_id": student_id}) or self.col_students.find_one({"id": student_id})
-        return Student.from_dict(doc) if doc else None
-
-    def update_student(self, student_id: str, updates: Dict) -> Optional[Student]:
-        set_fields = {}
-        if "name" in updates:
-            set_fields["name"] = str(updates["name"]).strip()
-        if "age" in updates:
-            set_fields["age"] = int(updates["age"])
-        if "grade" in updates:
-            set_fields["grade"] = str(updates["grade"]).strip().upper()
-        if "city" in updates:
-            set_fields["city"] = str(updates["city"]).strip()
-
-        res = self.col_students.find_one_and_update(
-            {"$or": [{"_id": student_id}, {"id": student_id}]},
-            {"$set": set_fields},
-            return_document=pymongo.ReturnDocument.AFTER
-        )
-        return Student.from_dict(res) if res else None
-
-    def delete_student(self, student_id: str) -> bool:
-        res = self.col_students.delete_one({"$or": [{"_id": student_id}, {"id": student_id}]})
-        return res.deleted_count > 0
-
+    # ── User Authentication ──
     def create_user(self, user: User) -> User:
         doc = user.to_dict()
         doc["_id"] = user.id

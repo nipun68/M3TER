@@ -1,6 +1,5 @@
 """
 Abstract Store interface defining the unified data access contract across all Ledger entities.
-Preserves existing project models (Students and Users) as well.
 """
 from __future__ import annotations
 from abc import ABC, abstractmethod
@@ -13,7 +12,6 @@ from app.models.meter import UsageEvent
 from app.models.entitlement import EntitlementResult
 from app.models.invoice import Invoice
 from app.models.coupon import Coupon
-from app.models.student import Student
 from app.models.user import User
 
 
@@ -149,18 +147,7 @@ class BaseStore(ABC):
     @abstractmethod
     def mark_invoice_past_due(self, inv_id: str, now: datetime) -> bool: ...
 
-    # ── Existing Project Compatibility: Students and Users ──
-    @abstractmethod
-    def create_student(self, student: Student) -> Student: ...
-    @abstractmethod
-    def get_all_students(self) -> List[Student]: ...
-    @abstractmethod
-    def get_student_by_id(self, student_id: str) -> Optional[Student]: ...
-    @abstractmethod
-    def update_student(self, student_id: str, updates: Dict) -> Optional[Student]: ...
-    @abstractmethod
-    def delete_student(self, student_id: str) -> bool: ...
-
+    # ── User Authentication ──
     @abstractmethod
     def create_user(self, user: User) -> User: ...
     @abstractmethod

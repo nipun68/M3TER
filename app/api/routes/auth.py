@@ -25,14 +25,12 @@ def register_user(data: UserRegisterSchema, store: BaseStore = Depends(get_store
         raise HTTPException(status_code=400, detail="Email and password are required")
 
     existing = store.get_user_by_email(data.email)
-    hashed_pw = hash_password(data.password)
-
     if existing:
-        existing.userpassword = hashed_pw
-        store.create_user(existing)
-    else:
-        user = User(useremail=data.email, userpassword=hashed_pw)
-        store.create_user(user)
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="User with this email already exists")
+
+    hashed_pw = hash_password(data.password)
+    user = User(useremail=data.email, userpassword=hashed_pw)
+    store.create_user(user)
 
     return {
         "message": "User registered successfully",

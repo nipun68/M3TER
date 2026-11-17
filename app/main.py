@@ -14,7 +14,6 @@ from app.api.dependencies import get_ledger
 from app.api.middleware import TenantContextMiddleware
 from app.api.routes import (
     auth,
-    students,
     plans,
     features,
     subscriptions,
@@ -53,9 +52,8 @@ app = FastAPI(
 # Custom Middleware
 app.add_middleware(TenantContextMiddleware)
 
-# Include All API Routers
+# API Routers
 app.include_router(auth.router)
-app.include_router(students.router)
 app.include_router(plans.router)
 app.include_router(features.router)
 app.include_router(subscriptions.router)

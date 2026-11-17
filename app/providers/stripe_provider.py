@@ -110,9 +110,9 @@ class StripePaymentProvider(BasePaymentProvider):
             return f"in_stripe_{inv.id}"
 
     def handle_webhook(self, payload: bytes, signature_header: Optional[str] = None) -> WebhookResult:
-        if signature_header:
-            if not verify_stripe_webhook_signature(payload, signature_header, self.webhook_secret):
-                return WebhookResult(event_type="unknown", handled=False, error="Invalid webhook signature")
+        if self.webhook_secret:
+            if not signature_header or not verify_stripe_webhook_signature(payload, signature_header, self.webhook_secret):
+                return WebhookResult(event_type="unknown", handled=False, error="Missing or invalid webhook signature")
 
         try:
             data = json.loads(payload.decode("utf-8"))
@@ -125,7 +125,7 @@ class StripePaymentProvider(BasePaymentProvider):
 
         if event_type in ("invoice.paid", "invoice.payment_failed"):
             metadata = event_obj.get("metadata", {})
-            ledger_inv_id = metadata.get(INVOICE_METADATA_KEY)
+            ledger_inv_id = metadata.get("m3ter_invoice_id") or metadata.get(INVOICE_METADATA_KEY)
             if ledger_inv_id:
                 result.entity_type = "invoice"
                 result.entity_id = ledger_inv_id

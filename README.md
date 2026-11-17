@@ -256,7 +256,6 @@ E:\Billing Engine\
 │   │       ├── metering.py          # High-throughput usage ingestion & query
 │   │       ├── payments.py          # Payment method retrieval & synchronization
 │   │       ├── plans.py             # Billing plans CRUD & activation
-│   │       ├── students.py          # Preserved Student CRUD endpoints
 │   │       ├── subscriptions.py     # Subscriptions lifecycle (create/cancel/pause/resume)
 │   │       └── webhooks.py          # Stripe webhook receiver with signature validation
 │   ├── config/

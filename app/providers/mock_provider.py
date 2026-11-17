@@ -57,7 +57,7 @@ class MockPaymentProvider(BasePaymentProvider):
             event_type = data.get("type", "test.event")
             event_obj = data.get("data", {}).get("object", {})
             metadata = event_obj.get("metadata", {})
-            ledger_inv_id = metadata.get("ledger_invoice_id") or data.get("entity_id", "")
+            ledger_inv_id = metadata.get("m3ter_invoice_id") or metadata.get("ledger_invoice_id") or data.get("entity_id", "")
             entity_type = "invoice" if (ledger_inv_id or "invoice" in event_type) else data.get("entity_type", "")
             return WebhookResult(
                 event_type=event_type,

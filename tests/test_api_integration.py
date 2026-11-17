@@ -1,6 +1,5 @@
 """
-End-to-end FastAPI integration tests verifying all migrated APIs
-and preserved existing Student and Auth endpoints.
+End-to-end FastAPI integration tests verifying M3TER billing, metering, and authentication endpoints.
 """
 from fastapi.testclient import TestClient
 import pytest
@@ -9,73 +8,31 @@ from app.main import app
 client = TestClient(app)
 
 
-def test_existing_student_api_endpoints():
-    # 1. Create a student
-    student_payload = {
-        "name": "Alex Johnson",
-        "age": 21,
-        "grade": "A+",
-        "city": "San Francisco"
-    }
-    res = client.post("/students", json=student_payload)
-    assert res.status_code == 201
-    created = res.json()
-    student_id = created["id"]
-    assert created["name"] == "Alex Johnson"
-    assert created["grade"] == "A+"
-
-    # 2. Get all students
-    res_list = client.get("/students")
-    assert res_list.status_code == 200
-    assert any(s["id"] == student_id for s in res_list.json())
-
-    # 3. Get student by ID
-    res_one = client.get(f"/students/{student_id}")
-    assert res_one.status_code == 200
-    assert res_one.json()["id"] == student_id
-
-    # 4. Update student
-    res_update = client.patch(f"/students/{student_id}", json={"grade": "O", "city": "Seattle"})
-    assert res_update.status_code == 200
-    assert res_update.json()["grade"] == "O"
-    assert res_update.json()["city"] == "Seattle"
-
-    # 5. Delete student
-    res_del = client.delete(f"/students/{student_id}")
-    assert res_del.status_code == 200
-    assert res_del.json()["message"] == "Student deleted successfully"
-
-    # 6. Verify 404 after deletion
-    res_404 = client.get(f"/students/{student_id}")
-    assert res_404.status_code == 404
-
-
-def test_existing_auth_api_endpoints():
-    # 1. Register a user
-    reg_payload = {"email": "dev@ledger.local", "password": "securepassword123"}
+def test_auth_api_endpoints():
+    reg_payload = {"email": "dev@m3ter.local", "password": "securepassword123"}
     res_reg = client.post("/register", json=reg_payload)
     assert res_reg.status_code == 200
     assert res_reg.json()["message"] == "User registered successfully"
 
-    # 2. Login
+    # Verify duplicate registration is rejected with 409 Conflict (prevents account takeover)
+    res_dup = client.post("/register", json=reg_payload)
+    assert res_dup.status_code == 409
+
     res_login = client.post("/login", json=reg_payload)
     assert res_login.status_code == 200
     data = res_login.json()
     assert "token" in data
     token = data["token"]
 
-    # 3. Access protected /profile route with valid token
     headers = {"Authorization": f"Bearer {token}"}
     res_prof = client.get("/profile", headers=headers)
     assert res_prof.status_code == 200
     assert res_prof.json()["message"] == "Profile Page"
-    assert res_prof.json()["user"]["email"] == "dev@ledger.local"
+    assert res_prof.json()["user"]["email"] == "dev@m3ter.local"
 
-    # 4. Access protected /account route
     res_acc = client.get("/account", headers=headers)
     assert res_acc.status_code == 200
 
-    # 5. Missing / invalid token rejection
     res_no_token = client.get("/profile")
     assert res_no_token.status_code == 401
     res_bad_token = client.get("/profile", headers={"Authorization": "Bearer invalid.token.value"})
