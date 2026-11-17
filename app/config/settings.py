@@ -7,14 +7,14 @@ from typing import Optional
 from dotenv import load_dotenv
 
 load_dotenv()
-load_dotenv("Mongodb/.env")
+load_dotenv(".env")
 
 
 class Settings:
     ENV: str = os.getenv("ENVIRONMENT", "development")
     PORT: int = int(os.getenv("PORT", "8000"))
     HOST: str = os.getenv("HOST", "0.0.0.0")
-    MONGO_URI: str = os.getenv("MONGO_URI", "mongodb://localhost:27017/ledger_db")
+    MONGO_URI: str = os.getenv("MONGO_URI", "mongodb://localhost:27017/m3ter_db")
     JWT_SECRET_KEY: str = os.getenv("JWT_SECRET_KEY", "PASSKEY")  # Preserved from Express.js
     STRIPE_SECRET_KEY: Optional[str] = os.getenv("STRIPE_SECRET_KEY", None)
     STRIPE_WEBHOOK_SECRET: Optional[str] = os.getenv("STRIPE_WEBHOOK_SECRET", None)

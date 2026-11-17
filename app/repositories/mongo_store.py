@@ -37,12 +37,12 @@ from app.repositories.base import BaseStore
 
 
 class MongoStore(BaseStore):
-    def __init__(self, uri: str = "mongodb://localhost:27017/ledger_db") -> None:
+    def __init__(self, uri: str = "mongodb://localhost:27017/m3ter_db") -> None:
         self.uri = uri
         self.client: MongoClient = MongoClient(uri, serverSelectionTimeoutMS=5000)
-        # Extract default db name if in URI, else 'ledger_db'
+        # Extract default db name if in URI, else 'm3ter_db'
         parsed_db = uri.rsplit("/", 1)[-1].split("?")[0]
-        self.db_name = parsed_db if parsed_db else "ledger_db"
+        self.db_name = parsed_db if parsed_db else "m3ter_db"
         self.db = self.client[self.db_name]
 
         # Collections matching store/mongo
